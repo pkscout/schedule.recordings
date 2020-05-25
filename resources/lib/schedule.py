@@ -51,7 +51,7 @@ class Main:
 
     def _parse_argv( self ):
         parser = argparse.ArgumentParser()
-        parser.add_argument( "-t", "--tvmazeids", help="comma separated list of the TV Maze ID of the shows" )
+        parser.add_argument( "-t", "--tvmazeids", help="TV Maze IDs (comma sep), 'followed', or 'tags:tagids (comma sep)" )
         parser.add_argument( "-l", "--lookforward", help="number of days forwards in time to look for episode match" )
         parser.add_argument( "-u", "--tvmaze_user", help="the TV Maze user id (only needed for certain functions)" )
         parser.add_argument( "-a", "--tvmaze_apikey", help="the TV Maze api key (only needed for certain functions)" )
