@@ -107,3 +107,39 @@ If you have a TV Maze subscription (any level), you can use your tags to only tr
 ```
     python3 execute.py -t tags:9001
 ```
+
+### Changing How Recurring Recordings Are Saved
+
+#### NextPVR
+You can change what kind of recurring recordings are saved by creating a `dvr_params` Python dict in settings.  Here's the structure and options:
+
+```
+dvr_params = { 'recurring_type':1,
+               'keep':0,
+               'pre_padding':'default',
+               'post_padding':'default',
+               'directory_id':'Default'
+             }
+```
+
+The valid recurring type integers are:
+
+* 1: Record Series (NEW episodes)
+* 2: Record Series (All Episodes) <- This is the NextPVR default, the script defaults to 1
+* 3: Record Series (Daily, this timeslot)
+* 4: Record Series (Weekly, this timeslot)
+* 5: Record Series (Monday-Friday, this timeslot)
+* 6: Record Series (Weekends, this timeslot)
+* 7: Record Series (All Episodes, All Channels)
+
+The valid keep integers are:
+
+* 0: All
+* 1-20: Number of recordings
+
+The valid pre and post padding values are:
+
+* default
+* 1-120: minutes of pre-padding
+
+The valid directory id is either 'Default' (the primary directory) or the name of any other directory you've added.
