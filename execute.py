@@ -1,7 +1,7 @@
 # *  Credits:
 # *
 # *  v.0.1.0
-# *  original Schedule Recordings code by pkscout
+# *  original TV Maze Integration code by pkscout
 
 from resources.lib.schedule import Main
 
