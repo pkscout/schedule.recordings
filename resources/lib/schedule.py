@@ -2,8 +2,8 @@
 import atexit, argparse, datetime, os, random, sys, time
 from datetime import datetime
 import resources.config as config
-from resources.lib.tvmazeapi import TVMaze
-from resources.lib.dvrapis import NextPVRAPI
+from resources.lib.dvrs import nextpvr
+from resources.lib.apis.tvmaze import TVMaze
 from resources.lib.fileops import checkPath, deleteFile, writeFile
 from resources.lib.xlogger import Logger
 from configparser import *
@@ -30,10 +30,13 @@ class Main:
         self._setPID()
         self._parse_argv()
         self._init_vars()
-        if self.DVRAPI:
+        if not self.DVR:
+            lw.log( ['invalid DVR configuration, exiting'] )
+            return
+        if self.ARGS.action == 'schedule':
             self._schedule_recordings()
         else:
-            lw.log( ['invalid DVR API configuration, exiting'] )
+            lw.log( ['no matching action for %s, exiting' % self.ARGS.action] )
 
 
     def _setPID( self ):
@@ -51,40 +54,22 @@ class Main:
 
     def _parse_argv( self ):
         parser = argparse.ArgumentParser()
+        parser.add_argument( "-a", "--action", help="Action for the script to take" )
         parser.add_argument( "-t", "--tvmazeids", help="TV Maze IDs (comma sep), 'followed', or 'tags:tagids (comma sep)" )
+        parser.add_argument( "-r", "--recordingid", help="The unique recording id provided by the PVR" )
         parser.add_argument( "-l", "--lookforward", help="number of days forwards in time to look for episode match" )
-        parser.add_argument( "-u", "--tvmaze_user", help="the TV Maze user id (only needed for certain functions)" )
-        parser.add_argument( "-a", "--tvmaze_apikey", help="the TV Maze api key (only needed for certain functions)" )
-        parser.add_argument( "-d", "--dvr_user", help="the DVR user id (if needed)" )
-        parser.add_argument( "-p", "--dvr_auth", help="the DVR auth (if needed)" )
         self.ARGS = parser.parse_args()
 
 
     def _init_vars( self ):
         self.DATEFORMAT = config.Get( 'dateformat' )
         self.TVMAZEWAIT = config.Get( 'tvmaze_wait' )
+        self.TVMAZE = TVMaze( user=config.Get( 'tvmaze_user' ), apikey=config.Get( 'tvmaze_apikey' ) )
+        self.DVR = self._pick_dvr()
         if self.ARGS.lookforward:
             self.LOOKFORWARD = self.ARGS.lookforward
         else:
             self.LOOKFORWARD = config.Get( 'lookforward' )
-        if self.ARGS.tvmaze_user:
-            tvmaze_user = self.ARGS.tvmaze_user
-        else:
-            tvmaze_user = config.Get( 'tvmaze_user' )
-        if self.ARGS.tvmaze_apikey:
-            tvmaze_apikey = self.ARGS.tvmaze_apikey
-        else:
-            tvmaze_apikey = config.Get( 'tvmaze_apikey' )
-        if self.ARGS.dvr_user:
-            self.DVRUSER = self.ARGS.dvr_user
-        else:
-            self.DVRUSER = config.Get( 'dvr_user' )
-        if self.ARGS.dvr_auth:
-            self.DVRAUTH = self.ARGS.dvr_auth
-        else:
-            self.DVRAUTH = config.Get( 'dvr_auth' )
-        self.TVMAZE = TVMaze( user=tvmaze_user, apikey=tvmaze_apikey )
-        self.DVRAPI = self._pick_api()
 
 
     def _schedule_recordings( self ):
@@ -136,7 +121,7 @@ class Main:
             lw.log( ['checking %s' % show['name']] )
             if self._check_upcoming_episode( show ):
                 if not self._check_recurring( show ):
-                    success, loglines = self.DVRAPI.scheduleNewRecurringRecording( show['name'], config.Get( 'dvr_params' ) )
+                    success, loglines = self.DVR.scheduleNewRecurringRecording( show['name'], config.Get( 'dvr_params' ) )
                     lw.log( loglines )
                     if success and tag_map and config.Get( 'tvmaze_untag' ):
                         lw.log( ['untagging show %s with tag %s' % (item, tag_map[item])] )
@@ -152,22 +137,17 @@ class Main:
 
 
     def _check_recurring( self, show ):
-        success, loglines, recurrings = self.DVRAPI.getScheduledRecordings()
+        loglines, recurrings = self.DVR.getScheduledRecordings()
         lw.log( loglines )
-        if not success:
-            lw.log( ['got no response from the DVR'] )
-            return False
         if not recurrings:
             lw.log( ['no recurring recordings found, trying to schedule recording'] )
             return False
-        else:
-            lw.log( ['found some recurring recordings, checking to see if one matches %s' % show['name']] )
-            for recurring in recurrings:
-                if recurring['name'] == show['name']:
-                    lw.log( ['found a matching recurring recording, skipping'] )
-                    return True
-            lw.log( ['no matching recurring recording, trying to schedule recording'] )
-            return False
+        lw.log( ['found some recurring recordings, checking to see if one matches %s' % show['name']] )
+        if show in recurrings:
+            lw.log( ['found a matching recurring recording, skipping'] )
+            return True
+        lw.log( ['no matching recurring recording, trying to schedule recording'] )
+        return False
 
 
     def _check_upcoming_episode( self, show ):
@@ -198,9 +178,9 @@ class Main:
             return False
 
 
-    def _pick_api( self ):
+    def _pick_dvr( self ):
         dvr_type = config.Get( 'dvr_type' ).lower()
         if dvr_type == 'nextpvr':
-            return NextPVRAPI( config )
+            return nextpvr.NextPVR( config )
         else:
             return None
