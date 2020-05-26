@@ -1,6 +1,6 @@
 # *  Credits:
 # *
-# *  v.0.1.0
+# *  v.0.1.1
 # *  original TV Maze Integration code by pkscout
 
 from resources.lib.schedule import Main
