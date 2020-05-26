@@ -1,33 +1,20 @@
 
-import atexit, argparse, datetime, os, random, sys, time
+import argparse, datetime, os, random, sys, time
 from datetime import datetime
 import resources.config as config
-from resources.lib.dvrs import nextpvr
+from resources.lib.dvrs import *
 from resources.lib.apis.tvmaze import TVMaze
-from resources.lib.fileops import checkPath, deleteFile, writeFile
 from resources.lib.xlogger import Logger
-from configparser import *
 
 p_folderpath, p_filename = os.path.split( sys.argv[0] )
-logpath = os.path.join( p_folderpath, 'data', 'logs', '' )
-checkPath( logpath )
-lw = Logger( logfile=os.path.join( logpath, 'logfile.log' ), numbackups=config.Get( 'logbackups' ), logdebug=config.Get( 'debug' ) )
-
-def _deletePID():
-    success, loglines = deleteFile( pidfile )
-    lw.log (loglines )
-    lw.log( ['script stopped'], 'info' )
-
-pid = str(os.getpid())
-pidfile = os.path.join( p_folderpath, 'data', 'create.pid' )
-atexit.register( _deletePID )
+lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logs', 'logfile.log' ),
+             numbackups=config.Get( 'logbackups' ), logdebug=config.Get( 'debug' ) )
 
 
 
 class Main:
     def __init__( self ):
         lw.log( ['script started'], 'info' )
-        self._setPID()
         self._parse_argv()
         self._init_vars()
         if not self.DVR:
@@ -37,19 +24,6 @@ class Main:
             self._schedule_recordings()
         else:
             lw.log( ['no matching action for %s, exiting' % self.ARGS.action] )
-
-
-    def _setPID( self ):
-        basetime = time.time()
-        while os.path.isfile( pidfile ):
-            time.sleep( random.randint( 1, 3 ) )
-            if time.time() - basetime > config.Get( 'aborttime' ):
-                err_str = 'taking too long for previous process to close - aborting attempt'
-                lw.log( [err_str] )
-                sys.exit( err_str )
-        lw.log( ['setting PID file'] )
-        success, loglines = writeFile( pid, pidfile, 'w' )
-        lw.log( loglines )
 
 
     def _parse_argv( self ):
