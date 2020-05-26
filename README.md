@@ -91,7 +91,7 @@ optional arguments:
 ### Creating Recurring Recordings
 
 #### from a List of TV Maze IDs
-The good news is, this is free.  The bad news is that you have to maintain the list of ids manually. You can find TV Maze IDs for shows by searching for them at https://tvmaze.com and looking at the show's URL.
+The good news is, this is free.  The bad news is that you have to maintain the list of ids manually. You can find TV Maze IDs for shows by searching for them at <https://tvmaze.com> and looking at the show's URL.
 ```
     python3 execute.py -t 42342,23030
 ```
@@ -103,7 +103,7 @@ If you have a TV Maze subscription (any level), you can use your followed shows 
 ```
 
 #### from Tags
-If you have a TV Maze subscription (any level), you can use your tags to only try and schedule some shows.  You can include more than one tag by separating the tagids with commas. To find a tag id, go to your tag list and hover over one of them.  The URL will show the tag id. For instance, I label and new shows I add to a tag called NEW SHOWS.  By default, the script will untag the show (but not unfollow it) when a recurring recording is successfully scheduled.  You can either put your TV Maze credentials in settings.py or in the command line.
+If you have a TV Maze subscription (any level), you can use your tags to try and schedule only some shows.  You can include more than one tag by separating the tagids with commas. To find a tag id, go to your tag list and hover over one of them.  The URL will show the tag id. For instance, I label any new shows I add to a tag called NEW SHOWS.  By default, the script will untag the show (but not unfollow it) when a recurring recording is successfully scheduled.  You can either put your TV Maze credentials in settings.py or in the command line.
 ```
     python3 execute.py -t tags:9001
 ```
