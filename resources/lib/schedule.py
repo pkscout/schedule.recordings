@@ -2,8 +2,8 @@
 import argparse, datetime, os, random, sys, time
 from datetime import datetime
 import resources.config as config
+import resources.lib.apis.tvmaze as tvmaze
 from resources.lib.dvrs import *
-from resources.lib.apis.tvmaze import TVMaze
 from resources.lib.xlogger import Logger
 
 p_folderpath, p_filename = os.path.split( sys.argv[0] )
@@ -38,7 +38,7 @@ class Main:
     def _init_vars( self ):
         self.DATEFORMAT = config.Get( 'dateformat' )
         self.TVMAZEWAIT = config.Get( 'tvmaze_wait' )
-        self.TVMAZE = TVMaze( user=config.Get( 'tvmaze_user' ), apikey=config.Get( 'tvmaze_apikey' ) )
+        self.TVMAZE = tvmaze.API( user=config.Get( 'tvmaze_user' ), apikey=config.Get( 'tvmaze_apikey' ) )
         self.DVR = self._pick_dvr()
         if self.ARGS.lookforward:
             self.LOOKFORWARD = self.ARGS.lookforward
@@ -155,6 +155,6 @@ class Main:
     def _pick_dvr( self ):
         dvr_type = config.Get( 'dvr_type' ).lower()
         if dvr_type == 'nextpvr':
-            return nextpvr.NextPVR( config )
+            return nextpvr.DVR( config )
         else:
             return None

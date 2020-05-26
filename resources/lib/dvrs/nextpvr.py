@@ -1,10 +1,10 @@
 
-from resources.lib.apis.nextpvr import NextPVRAPI
+import resources.lib.apis.nextpvr as nextpvr
 
-class NextPVR:
+class DVR:
 
     def __init__( self, config ):
-        self.APICALL = NextPVRAPI( config.Get( 'dvr_host' ), config.Get( 'dvr_port' ), config.Get( 'dvr_auth' ) )
+        self.APICALL = nextpvr.API( config.Get( 'dvr_host' ), config.Get( 'dvr_port' ), config.Get( 'dvr_auth' ) )
 
 
     def scheduleNewRecurringRecording( self, name, params ):
