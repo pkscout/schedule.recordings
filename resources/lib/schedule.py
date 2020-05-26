@@ -201,6 +201,6 @@ class Main:
     def _pick_api( self ):
         dvr_type = config.Get( 'dvr_type' ).lower()
         if dvr_type == 'nextpvr':
-            return NextPVRAPI( config, self.DVRUSER, self.DVRAUTH )
+            return NextPVRAPI( config )
         else:
             return None

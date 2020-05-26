@@ -18,7 +18,7 @@ pip3 install requests
 To install download and unzip in any directory.
 
 ## CONFIGURATION
-The script will run with no configuration.  If you want to add any configuration options, create a file called settings.py and place it in the data directory of the script. Here are the available options:
+The script might run with no configuration if you are running it from the same machine as your DVR, but if you are using NextPVR as your DVR you probably need set set `dvr_auth` to your NextPVR PIN `dvr_user` is not needed).  If you want to add any configuration options, create a file called settings.py and place it in the data directory of the script. Here are the available options:
 
 
 * `dvr_type = '<string>'` (default `'nextpvr'`)  
