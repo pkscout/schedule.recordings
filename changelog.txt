@@ -1,3 +1,6 @@
+v.0.3.4
+- fix for auth not passing
+
 v.0.3.3
 - fixed crash when use followed shows as source for scheduling
 - changed auth method on tvmaze library
