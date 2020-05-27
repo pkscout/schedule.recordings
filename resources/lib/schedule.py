@@ -157,6 +157,7 @@ class Main:
 
 
     def _schedule_recordings( self ):
+        tag_map = {}
         if self.ARGS.tvmazeids == 'followed':
             use_tvmaze_public = False
             items = []
@@ -172,7 +173,6 @@ class Main:
         elif 'tags' in self.ARGS.tvmazeids:
             use_tvmaze_public = True
             items = []
-            tag_map = {}
             try:
                 tags = self.ARGS.tvmazeids.split( ':' )[1].split( ',' )
             except IndexError:
