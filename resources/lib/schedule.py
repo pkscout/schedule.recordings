@@ -39,6 +39,7 @@ class Main:
 
 
     def _init_vars( self ):
+        lw.log( ['initializing variables'] )
         self.DATEFORMAT = config.Get( 'dateformat' )
         self.TVMAZEWAIT = config.Get( 'tvmaze_wait' )
         self.TVMAZE = tvmaze.API( user=config.Get( 'tvmaze_user' ), apikey=config.Get( 'tvmaze_apikey' ) )
@@ -50,8 +51,8 @@ class Main:
 
 
     def _check_recurring( self, show ):
+        lw.log( ['checking for recurring recordings'] )
         recurrings, loglines = self.DVR.getScheduledRecordings()
-        lw.log( loglines )
         if not recurrings:
             lw.log( ['no recurring recordings found, trying to schedule recording'] )
             return False
@@ -64,6 +65,7 @@ class Main:
 
 
     def _check_results( self, results ):
+        lw.log( ['checking the results to see if they are valid'] )
         try:
             check_results = results[0]['show_id']
         except (IndexError, KeyError):
@@ -72,6 +74,7 @@ class Main:
 
 
     def _check_upcoming_episode( self, show ):
+        lw.log( ['checking for upcoming episodes'] )
         try:
             nextepisode = show['_links']['nextepisode']['href']
         except KeyError:
@@ -79,7 +82,6 @@ class Main:
             return False
         episodeid = nextepisode.split( '/' )[-1]
         success, loglines, episode = self.TVMAZE.getEpisode( episodeid )
-        lw.log( loglines )
         if not success:
             lw.log( ['unable to get episode information from TVMaze for episode %s, skipping' % episodeid] )
             return False
@@ -100,22 +102,24 @@ class Main:
 
 
     def _mark_aquired( self ):
+        lw.log( ['starting process to mark show as acquired', 'getting show information from DVR'] )
         show_info, loglines = self.DVR.getShowInformationFromRecording( self.ARGS.recordingid )
-        lw.log( loglines )
         if show_info:
+            lw.log( ['show info found', 'getting followed shows from TV Maze'] )
             success, loglines, results = self.TVMAZE.getFollowedShows( params={'embed':'show'} )
-            lw.log( loglines )
             tvmazeid = ''
             for followed_show in results:
                 try:
                     followed_name = followed_show['_embedded']['show']['name']
                 except KeyError:
                     continue
+                lw.log( ['checking for %s matching %s' % (show_info['name'], followed_show['_embedded']['show']['name'])] )
                 if followed_name == show_info['name']:
                     lw.log( ['found match for %s' % show_info['name'] ] )
                     tvmazeid = followed_show['show_id']
                     break
             if tvmazeid:
+                lw.log( ['found tvmazeid of %s' % tvmazeid, 'attempting to get episode id'] )
                 params = {'season':show_info['season'], 'number':show_info['episode']}
                 success, loglines, results = self.TVMAZE.getEpisodeBySeasonEpNumber( tvmazeid, params )
                 lw.log(loglines)
@@ -124,8 +128,14 @@ class Main:
                 except KeyError:
                     episodeid = ''
                 if episodeid:
+                    lw.log( ['got back episode id of %s' % episodeid] )
                     success, loglines, results = self.TVMAZE.markEpisode( episodeid, marked_as=1 )
-                    lw.log( loglines )
+                else:
+                    lw.log( ['no episode id found'] )
+            else:
+                lw.log( ['no tvmazeid found'] )
+        else:
+            lw.log( ['no show information from DVR'] )
 
 
     def _pick_dvr( self ):
@@ -141,7 +151,6 @@ class Main:
             use_tvmaze_public = False
             items = []
             success, loglines, results = self.TVMAZE.getFollowedShows( params={'embed':'show'} )
-            lw.log( loglines )
             if self._check_results( results ):
                 for show in results:
                     try:
@@ -160,7 +169,6 @@ class Main:
                 lw.log( ['no tags found in tags call'] )
             for tag in tags:
                 success, loglines, results = self.TVMAZE.getTaggedShows( tag )
-                lw.log( loglines )
                 if self._check_results( results ):
                     for show in results:
                         try:
@@ -175,7 +183,6 @@ class Main:
         for item in items:
             if use_tvmaze_public:
                 success, loglines, show = self.TVMAZE.getShow( item )
-                lw.log( loglines )
                 if not success:
                     lw.log( ['got nothing back from TVMaze, aborting'] )
                     break
@@ -186,7 +193,6 @@ class Main:
             if self._check_upcoming_episode( show ):
                 if not self._check_recurring( show ):
                     success, loglines = self.DVR.scheduleNewRecurringRecording( show['name'], config.Get( 'dvr_params' ) )
-                    lw.log( loglines )
                     if success and tag_map and config.Get( 'tvmaze_untag' ):
                         lw.log( ['untagging show %s with tag %s' % (item, tag_map[item])] )
                         self.TVMAZE.unTagShow( item, tag_map[item] )
