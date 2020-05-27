@@ -35,10 +35,10 @@ class DVR:
             recording = results['recordings'][0]
         except (KeyError, IndexError):
             return info, loglines
-        if not recording['name'] and recording['season'] and recording['episode']:
-            loglines.append( 'show does not have required name, season number, and episode number to continue' )
-            return info, loglines
-        info['name'] = recording['name']
-        info['season'] = recording['season']
-        info['episode'] = recording['episode']
+        try:
+            info['name'] = recording['name']
+            info['season'] = recording['season']
+            info['episode'] = recording['episode']
+        except KeyError:
+            info = {}
         return info, loglines
