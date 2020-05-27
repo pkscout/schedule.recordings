@@ -22,8 +22,11 @@ class Main:
             return
         if self.ARGS.action == 'schedule':
             self._schedule_recordings()
+        elif self.ARGS.action == 'acquired':
+            self._mark_aquired()
         else:
             lw.log( ['no matching action for %s, exiting' % self.ARGS.action] )
+        lw.log( ['script ended'], 'info' )
 
 
     def _parse_argv( self ):
@@ -44,6 +47,93 @@ class Main:
             self.LOOKFORWARD = self.ARGS.lookforward
         else:
             self.LOOKFORWARD = config.Get( 'lookforward' )
+
+
+    def _check_recurring( self, show ):
+        recurrings, loglines = self.DVR.getScheduledRecordings()
+        lw.log( loglines )
+        if not recurrings:
+            lw.log( ['no recurring recordings found, trying to schedule recording'] )
+            return False
+        lw.log( ['found some recurring recordings, checking to see if one matches %s' % show['name']] )
+        if show in recurrings:
+            lw.log( ['found a matching recurring recording, skipping'] )
+            return True
+        lw.log( ['no matching recurring recording, trying to schedule recording'] )
+        return False
+
+
+    def _check_results( self, results ):
+        try:
+            check_results = results[0]['show_id']
+        except (IndexError, KeyError):
+            return False
+        return True
+
+
+    def _check_upcoming_episode( self, show ):
+        try:
+            nextepisode = show['_links']['nextepisode']['href']
+        except KeyError:
+            lw.log( ['no next episode found in TVMaze, skipping'] )
+            return False
+        episodeid = nextepisode.split( '/' )[-1]
+        success, loglines, episode = self.TVMAZE.getEpisode( episodeid )
+        lw.log( loglines )
+        if not success:
+            lw.log( ['unable to get episode information from TVMaze for episode %s, skipping' % episodeid] )
+            return False
+        next_airdate = episode.get( 'airdate' )
+        if next_airdate:
+            next_date = datetime.strptime( next_airdate, self.DATEFORMAT )
+            today = datetime.now()
+            gapdays = (next_date - today).days
+            if  gapdays > self.LOOKFORWARD:
+                lw.log( ['next episode is still %s days away, skipping for now' % str( gapdays )] )
+                return False
+            else:
+               lw.log( ['found an episode within %s days, trying to schedule' % str( gapdays )] )
+               return True
+        else:
+            lw.log( 'no airdate for next episode in TVMaze, skipping' )
+            return False
+
+
+    def _mark_aquired( self ):
+        show_info, loglines = self.DVR.getShowInformationFromRecording( self.ARGS.recordingid )
+        lw.log( loglines )
+        if show_info:
+            success, loglines, results = self.TVMAZE.getFollowedShows( params={'embed':'show'} )
+            lw.log( loglines )
+            tvmazeid = ''
+            for followed_show in results:
+                try:
+                    followed_name = followed_show['_embedded']['show']['name']
+                except KeyError:
+                    continue
+                if followed_name == show_info['name']:
+                    lw.log( ['found match for %s' % show_info['name'] ] )
+                    tvmazeid = followed_show['show_id']
+                    break
+            if tvmazeid:
+                params = {'season':show_info['season'], 'number':show_info['episode']}
+                success, loglines, results = self.TVMAZE.getEpisodeBySeasonEpNumber( tvmazeid, params )
+                lw.log(loglines)
+                try:
+                    episodeid = results['id']
+                except KeyError:
+                    episodeid = ''
+                if episodeid:
+                    success, loglines, results = self.TVMAZE.markEpisode( episodeid, marked_as=1 )
+                    lw.log( loglines )
+
+
+    def _pick_dvr( self ):
+        dvr_type = config.Get( 'dvr_type' ).lower()
+        if dvr_type == 'nextpvr':
+            return nextpvr.DVR( config )
+        else:
+            return None
 
 
     def _schedule_recordings( self ):
@@ -101,60 +191,3 @@ class Main:
                         lw.log( ['untagging show %s with tag %s' % (item, tag_map[item])] )
                         self.TVMAZE.unTagShow( item, tag_map[item] )
 
-
-    def _check_results( self, results ):
-        try:
-            check_results = results[0]['show_id']
-        except (IndexError, KeyError):
-            return False
-        return True
-
-
-    def _check_recurring( self, show ):
-        loglines, recurrings = self.DVR.getScheduledRecordings()
-        lw.log( loglines )
-        if not recurrings:
-            lw.log( ['no recurring recordings found, trying to schedule recording'] )
-            return False
-        lw.log( ['found some recurring recordings, checking to see if one matches %s' % show['name']] )
-        if show in recurrings:
-            lw.log( ['found a matching recurring recording, skipping'] )
-            return True
-        lw.log( ['no matching recurring recording, trying to schedule recording'] )
-        return False
-
-
-    def _check_upcoming_episode( self, show ):
-        try:
-            nextepisode = show['_links']['nextepisode']['href']
-        except KeyError:
-            lw.log( ['no next episode found in TVMaze, skipping'] )
-            return False
-        episodeid = nextepisode.split( '/' )[-1]
-        success, loglines, episode = self.TVMAZE.getEpisode( episodeid )
-        lw.log( loglines )
-        if not success:
-            lw.log( ['unable to get episode information from TVMaze for episode %s, skipping' % episodeid] )
-            return False
-        next_airdate = episode.get( 'airdate' )
-        if next_airdate:
-            next_date = datetime.strptime( next_airdate, self.DATEFORMAT )
-            today = datetime.now()
-            gapdays = (next_date - today).days
-            if  gapdays > self.LOOKFORWARD:
-                lw.log( ['next episode is still %s days away, skipping for now' % str( gapdays )] )
-                return False
-            else:
-               lw.log( ['found an episode within %s days, trying to schedule' % str( gapdays )] )
-               return True
-        else:
-            lw.log( 'no airdate for next episode in TVMaze, skipping' )
-            return False
-
-
-    def _pick_dvr( self ):
-        dvr_type = config.Get( 'dvr_type' ).lower()
-        if dvr_type == 'nextpvr':
-            return nextpvr.DVR( config )
-        else:
-            return None

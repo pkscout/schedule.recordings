@@ -1,3 +1,6 @@
+v.0.3.0
+- added option to mark show as acquired on TV Maze
+
 v.0.2.0
 - changed method for executing script
 - rearranged API calls

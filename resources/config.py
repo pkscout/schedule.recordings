@@ -33,4 +33,4 @@ def Get( name ):
     if not setting:
         setting = defaults.get( name, None )
     return setting
-    
+

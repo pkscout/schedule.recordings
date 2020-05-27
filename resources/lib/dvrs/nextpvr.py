@@ -23,5 +23,22 @@ class DVR:
                 recording_names.append( result['name'] )
             except KeyError:
                 continue
-        return loglines, recording_names
+        return recording_names, loglines
         
+
+    def getShowInformationFromRecording( self, oid ):
+        info = {}
+        success, loglines, results = self.APICALL.getRecordingList( recording_id=oid )
+        if not success:
+            return info, loglines
+        try:
+            recording = results['recordings'][0]
+        except (KeyError, IndexError):
+            return info, loglines
+        if not recording['name'] and recording['season'] and recording['episode']:
+            loglines.append( 'show does not have required name, season number, and episode number to continue' )
+            return info, loglines
+        info['name'] = recording['name']
+        info['season'] = recording['season']
+        info['episode'] = recording['episode']
+        return info, loglines
