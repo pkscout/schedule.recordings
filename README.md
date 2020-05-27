@@ -73,7 +73,7 @@ The date format for the season date used by the command line and the settings fi
 * `show_override = <dict>` (default `{}`)  
 There are some rare cases where the show name the DVR has from the guide data doesn't match what is in TV Maze. When that happens, you can override the DVR's show name by using a Python dict in your settings.  It will look like this:
 ```
-        show_override = { "DC's Stargirl":"Stargirl", "DVR show name":"TV Maze show name"}
+    show_override = { "DC's Stargirl":"Stargirl", "DVR show name":"TV Maze show name"}
 ```
 
 * `aborttime = <int>` (default `30`)  
@@ -115,13 +115,13 @@ The good news is, this is free.  The bad news is that you have to maintain the l
 ```
 
 #### from your Followed Recordings
-If you have a TV Maze subscription (any level), you can use your followed shows as the list of shows to try and record.  You can either put your TV Maze credentials in settings.py or in the command line.
+If you have a TV Maze subscription (any level), you can use your followed shows as the list of shows to try and record.  See the config section above for information on how to put your TV Maze credentials into the settings.
 ```
     python3 execute.py -a schedule -t followed
 ```
 
 #### from Tags
-If you have a TV Maze subscription (any level), you can use your tags to try and schedule only some shows.  You can include more than one tag by separating the tagids with commas. To find a tag id, go to your tag list and hover over one of them.  The URL will show the tag id. For instance, I label any new shows I add to a tag called NEW SHOWS.  By default, the script will untag the show (but not unfollow it) when a recurring recording is successfully scheduled.  You can either put your TV Maze credentials in settings.py or in the command line.
+If you have a TV Maze subscription (any level), you can use your tags to try and schedule only some shows.  You can include more than one tag by separating the tagids with commas. To find a tag id, go to your tag list and hover over one of them.  The URL will show the tag id. For instance, I label any new shows I add to a tag called NEW SHOWS.  By default, the script will untag the show (but not unfollow it) when a recurring recording is successfully scheduled.  See the config section above for information on how to put your TV Maze credentials into the settings.
 ```
     python3 execute.py -a schedule -t tags:9001
 ```
