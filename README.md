@@ -70,6 +70,12 @@ The number of days in the future that a TVMaze next episode can be scheduled and
 * `dateformat = '<string>'` (default `'%Y-%m-%d'`)  
 The date format for the season date used by the command line and the settings file.
 
+* `show_override = <dict>` (default `{}`)  
+There are some rare cases where the show name the DVR has from the guide data doesn't match what is in TV Maze. When that happens, you can override the DVR's show name by using a Python dict in your settings.  It will look like this:
+```
+        show_override = { "DC's Stargirl":"Stargirl", "DVR show name":"TV Maze show name"}
+```
+
 * `aborttime = <int>` (default `30`)  
 If another instance of script is running, amount of time (in seconds) to wait before giving up.
 
