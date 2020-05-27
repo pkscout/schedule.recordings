@@ -1,3 +1,8 @@
+v.0.3.3
+- fixed crash when use followed shows as source for scheduling
+- changed auth method on tvmaze library
+- added more sensible logging
+
 v.0.3.2
 - changed logging so API responses are only logged in DEBUG
 - added show name over ride for cases where DVR show name doesn't match TV Maze but should
