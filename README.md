@@ -169,12 +169,12 @@ To trigger the script to run, you need to add something to either your PostUpdat
 #### On Windows
 For scheduling you need to go to the NextPVR scripts directory, edit (or create) `PostUpdateEPG.bat`, and add:
 ```
-C:\Program Files\Python36\python.exe C:\CustomApps\tcmaze.integration\execute.py -a schedule -t tags:9001
+C:\Program Files\Python36\python.exe C:\CustomApps\tvmaze.integration\execute.py -a schedule -t tags:9001
 ```
 
 For marking as aquired you need to go to the NextPVR scripts directory, edit (or create) `PostProcessing.bat`, and add:
 ```
-C:\Program Files\Python36\python.exe C:\CustomApps\tcmaze.integration\execute.py -a aquired -r $3
+C:\Program Files\Python36\python.exe C:\CustomApps\tvmaze.integration\execute.py -a aquired -r $3
 ```
 
 The path to the Python executable needs to match your Python installation, and the path to the script needs to match the path on your system to the script.  If your directory path has spaces in any of the folder names, the recommendation is to surround the script path with double quotes.
@@ -182,12 +182,12 @@ The path to the Python executable needs to match your Python installation, and t
 #### For All Non-Windows Platforms
 For scheduling, you need to go to the NextPVR scripts directory, edit (or create) `PostUpdateEPG.sh`, and add:
 ```
-python3 /config/scripts/tcmaze.integration/execute.py -a schedule -t tags:9001
+python3 /config/scripts/tvmaze.integration/execute.py -a schedule -t tags:9001
 ```
 
 For marking as aquired, you need to go to the NextPVR scripts directory, edit (or create) `PostProcessing.sh`, and add:
 ```
-python3 /config/scripts/tcmaze.integration/execute.py -a aquired -r $3
+python3 /config/scripts/tvmaze.integration/execute.py -a acquired -r $3
 ```
 
 The path to the script needs to match the path on your system to the script.  This example is from a Docker instance where  is script is placed in the NextPVR scripts directory. If your directory path has spaces in any of the folder names, the recommendation is to surround the script path with double quotes.
