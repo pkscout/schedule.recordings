@@ -14,8 +14,10 @@ class API( object ):
 
     def __init__( self, user='', apikey='' ):
         self.PUBLICURL = 'https://api.tvmaze.com'
+        self.USER = user
+        self.APIKEY = apikey
         if user and apikey:
-            self.AUTHURL = 'https://%s:%s@api.tvmaze.com/v1/user' % (user, apikey)
+            self.AUTHURL = 'https://api.tvmaze.com/v1/user'
         else:
             self.AUTHURL = self.PUBLICURL
 
@@ -64,14 +66,15 @@ class API( object ):
                 loglines.append( 'authorization credentials required but not supplied' )
                 return False, loglines, {}
             url_base = self.AUTHURL
+            auth = (self.USER, self.APIKEY)
         else:
             url_base = self.PUBLICURL
-        url = '%s/%s' % (url_base, url_end )
+        theurl = '%s/%s' % (url_base, url_end )
         if type == 'get':
-            success, j_loglines, results = JSONURL.Get( url, params=params )
+            status, j_loglines, results = JSONURL.Get( theurl, auth=auth, params=params )
         if type == 'put':
-            success, j_loglines, results = JSONURL.Put( url, params=params, data=data )
+            status, j_loglines, results = JSONURL.Put( theurl,auth=auth, params=params, data=data )
         if type == 'delete':
-            success, j_loglines, results = TXTURL.Delete( url, params=params )
+            status, j_loglines, results = TXTURL.Delete( theurl, auth=auth, params=params )
         loglines.extend( j_loglines )
-        return success, loglines, results
+        return status == 200, loglines, results
