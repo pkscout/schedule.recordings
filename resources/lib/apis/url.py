@@ -12,29 +12,26 @@ class URL( object ):
 
 
     def Get( self, theurl, **kwargs ):
-        auth, params, thedata = self._unpack_args( kwargs )
-        return self._urlcall( theurl, auth, params, '', 'get' )
+        return self._urlcall( theurl, 'get', kwargs )
 
 
     def Post( self, theurl, **kwargs ):
-        auth, params, thedata = self._unpack_args( kwargs )
-        return self._urlcall( theurl, auth, params, thedata, 'post' )
+        return self._urlcall( theurl, 'post', kwargs )
 
 
     def Put( self, theurl, **kwargs ):
-        auth, params, thedata = self._unpack_args( kwargs )
-        return self._urlcall( theurl, auth, params, thedata, 'put' )
+        return self._urlcall( theurl, 'put', kwargs )
 
 
     def Delete( self, theurl, **kwargs ):
-        auth, params, thedata = self._unpack_args( kwargs )
-        return self._urlcall( theurl, auth, params, thedata, 'delete' )
+        return self._urlcall( theurl, 'delete', kwargs )
 
 
-    def _urlcall( self, theurl, auth, params, thedata, urltype ):
+    def _urlcall( self, theurl, urltype, kwargs ):
         loglines = []
         urldata = ''
         bad_r = False
+        auth, params, thedata = self._unpack_args( kwargs )
         try:
             if urltype == "get":
                 urldata = _requests.get( theurl, params=params, headers=self.HEADERS, auth=auth, timeout=self.TIMEOUT )
