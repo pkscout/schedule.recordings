@@ -108,6 +108,13 @@ class Main:
             lw.log( ['show info found', 'getting followed shows from TV Maze'] )
             success, loglines, results = self.TVMAZE.getFollowedShows( params={'embed':'show'} )
             tvmazeid = ''
+            show_override = config.Get( 'show_override' )
+            lw.log( ['checking to see if there is an override for %s' % show_info['name']] )
+            try:
+                show_info['name'] = show_override[show_info['name']]
+            except KeyError:
+                lw.log( ['no show override found, using original'] )
+            lw.log( ['using show name of %s' % show_info['name']] )
             for followed_show in results:
                 try:
                     followed_name = followed_show['_embedded']['show']['name']

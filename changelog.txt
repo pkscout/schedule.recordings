@@ -1,3 +1,7 @@
+v.0.3.2
+- changed logging to avoid logging entire API response
+- added show name over ride for cases where DVR show name doesn't match TV Maze by should
+
 v.0.3.1
 - fix for crash if DVR doesn't return season or episode information
 
