@@ -1,5 +1,5 @@
 
-import argparse, os, sys, time
+import argparse, os, time
 from datetime import datetime
 import resources.config as config
 import resources.lib.apis.tvmaze as tvmaze
@@ -172,7 +172,7 @@ class Main:
             items = self._get_followed()
         elif 'tags' in self.ARGS.tvmazeids:
             use_tvmaze_public = True
-            items = self._get_tagged()
+            items, tag_map = self._get_tagged()
         else:
             use_tvmaze_public = True
             items = self.ARGS.tvmazeids.split( ',' )
@@ -219,6 +219,7 @@ class Main:
     def _get_tagged( self ):
         self.LW.log( ['tring to get a list of tagged shows from TV Maze'], 'info' )
         items = []
+        tag_map = {}
         try:
             tags = self.ARGS.tvmazeids.split( ':' )[1].split( ',' )
         except IndexError:
@@ -238,5 +239,5 @@ class Main:
                         continue
                     tag_map[show['show_id']] = tag
         self.LW.log( ['continuing with updated list of show ids of:', items], 'info' )
-        return items
+        return items, tag_map
 
