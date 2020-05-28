@@ -4,6 +4,7 @@ import resources.lib.apis.nextpvr as nextpvr
 class DVR:
 
     def __init__( self, config ):
+        """Creates a NextPVR DVR object."""
         self.APICALL = nextpvr.API( config.Get( 'dvr_host' ), config.Get( 'dvr_port' ), config.Get( 'dvr_auth' ) )
 
 
@@ -11,8 +12,8 @@ class DVR:
         success, loglines, results = self.APICALL.scheduleNewRecurringRecording( name, params )
         successful = success and results['stat'] == 'ok'
         return successful, loglines
- 
-        
+
+
     def getScheduledRecordings( self ):
         success, loglines, results = self.APICALL.getScheduledRecordings()
         if not success:
@@ -24,7 +25,7 @@ class DVR:
             except KeyError:
                 continue
         return recording_names, loglines
-        
+
 
     def getShowInformationFromRecording( self, oid ):
         info = {}

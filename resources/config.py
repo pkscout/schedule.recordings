@@ -20,11 +20,11 @@ try:
     has_overrides = True
 except ImportError:
     has_overrides = False
-
+import importlib
 
 def Reload():
     if has_overrides:
-        reload( overrides )
+        importlib.reload( overrides )
 
 
 def Get( name ):
