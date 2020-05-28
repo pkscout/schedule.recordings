@@ -6,8 +6,7 @@ import resources.lib.apis.tvmaze as tvmaze
 from resources.lib.dvrs import *
 from resources.lib.xlogger import Logger
 
-p_folderpath, p_filename = os.path.split( sys.argv[0] )
-lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logs', 'logfile.log' ),
+lw = Logger( logfile=os.path.join( 'data', 'logs', 'logfile.log' ),
              numbackups=config.Get( 'logbackups' ), logdebug=config.Get( 'debug' ) )
 
 

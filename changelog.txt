@@ -1,3 +1,6 @@
+v.0.3.5
+- fix for crash if data directory does not exist
+
 v.0.3.4
 - fix for auth not passing
 
