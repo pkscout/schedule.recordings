@@ -1,4 +1,4 @@
-#v.0.1.2
+#v.0.1.4
 
 from . import url
 
@@ -9,6 +9,7 @@ JSONURL = url.URL( 'json' )
 class API( object ):
 
     def __init__( self, dvr_host, dvr_port, dvr_auth ):
+        """Creates NextPVR API object."""
         url_end = 'services/service'
         self.BASEURL = 'http://%s:%s/%s' % (dvr_host, dvr_port, url_end)
         self.PINCODE = dvr_auth
@@ -24,13 +25,13 @@ class API( object ):
         return self._do_call( params )
 
 
-    def getRecordingList( self, recording_id='', filter='' ):
+    def getRecordingList( self, recording_id='', thefilter='' ):
         params = self.PARAMS
         params['method'] = 'recording.list'
         if recording_id:
             params['recording_id'] = recording_id
         elif filter:
-            params['filter'] = filter
+            params['filter'] = thefilter
         else:
             params['filter'] = 'all'
         return self._do_call( params )
@@ -42,7 +43,9 @@ class API( object ):
         return self._do_call( params )
 
 
-    def scheduleNewRecurringRecording( self, name, params={} ):
+    def scheduleNewRecurringRecording( self, name, params=None ):
+        if not params:
+            params = {}
         loglines = []
         success, t_loglines, results = self.searchForEpisode( name )
         loglines.extend( t_loglines )

@@ -1,5 +1,7 @@
 v.0.3.6
 - fix for log files not always ending up in the right place
+- updated API libraries
+- misc code fixes
 
 v.0.3.5
 - fix for crash if data directory does not exist

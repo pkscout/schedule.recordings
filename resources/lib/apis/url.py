@@ -1,4 +1,4 @@
-#v.0.5.1
+#v.0.5.3
 
 import socket
 import requests as _requests
@@ -6,6 +6,7 @@ import requests as _requests
 class URL( object ):
 
     def __init__( self, returntype='text', headers='', timeout=10 ):
+        """Creates a Requests wrapper object."""
         self.TIMEOUT = timeout
         self.HEADERS = headers
         self.RETURNTYPE = returntype
@@ -70,22 +71,21 @@ class URL( object ):
         if bad_r:
             return False, loglines, ''
         if urldata:
-            success = True
             loglines.append( 'returning URL as ' + self.RETURNTYPE )
             if self.RETURNTYPE == 'text':
-                data = urldata.text
+                thedata = urldata.text
             elif self.RETURNTYPE == 'binary':
-                data = urldata.content
+                thedata = urldata.content
             elif self.RETURNTYPE == 'json':
-                data = urldata.json()
+                thedata = urldata.json()
             else:
                 loglines.append( 'unable to convert returned object to acceptable type' )
                 return False, loglines, ''
         else:
             return False, loglines, ''
         loglines.append( '-----URL OBJECT RETURNED-----' )
-        loglines.append( data )
-        return urldata.status_code, loglines, data
+        loglines.append( thedata )
+        return urldata.status_code, loglines, thedata
 
 
     def _unpack_args( self, kwargs ):
@@ -103,5 +103,5 @@ class URL( object ):
             if self.RETURNTYPE == 'json':
                 thedata = []
             else:
-                data = ''
+                thedata = ''
         return auth, params, thedata

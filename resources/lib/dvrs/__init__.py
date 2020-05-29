@@ -1,3 +1,5 @@
+"""Defines the list of DVR libraries available."""
+
 import os
 
 __all__ = []

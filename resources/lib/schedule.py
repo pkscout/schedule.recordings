@@ -1,5 +1,5 @@
 
-import argparse, datetime, os, random, sys, time
+import argparse, os, time
 from datetime import datetime
 import resources.config as config
 import resources.lib.apis.tvmaze as tvmaze
@@ -10,9 +10,9 @@ from resources.lib.xlogger import Logger
 
 class Main:
     def __init__( self, thepath ):
-        self.ROOTPATH = os.path.dirname( thepath )
-        self.LW = Logger( logfile=os.path.join(self.ROOTPATH, 'data', 'logs', 'logfile.log' ),
-                     numbackups=config.Get( 'logbackups' ), logdebug=config.Get( 'debug' ) )
+        """Runs the various TV Maze routines."""
+        self.LW = Logger( logfile=os.path.join(os.path.dirname( thepath ), 'data', 'logs', 'logfile.log' ),
+                          numbackups=config.Get( 'logbackups' ), logdebug=config.Get( 'debug' ) )
         self.LW.log( ['script started'], 'info' )
         self._parse_argv()
         self._init_vars()
@@ -52,6 +52,7 @@ class Main:
     def _check_recurring( self, show ):
         self.LW.log( ['checking for recurring recordings'], 'info' )
         recurrings, loglines = self.DVR.getScheduledRecordings()
+        self.LW.log( loglines )
         if not recurrings:
             self.LW.log( ['no recurring recordings found, trying to schedule recording'], 'info' )
             return False
@@ -66,7 +67,7 @@ class Main:
     def _check_results( self, results ):
         self.LW.log( ['checking the results to see if they are valid'], 'info' )
         try:
-            check_results = results[0]['show_id']
+            results[0]['show_id']
         except (IndexError, KeyError):
             return False
         return True
@@ -167,44 +168,11 @@ class Main:
         self.LW.log( ['starting process of scheduling recordings'], 'info' )
         tag_map = {}
         if self.ARGS.tvmazeids == 'followed':
-            self.LW.log( ['trying to get a list of followed shows from TV Maze'], 'info' )
             use_tvmaze_public = False
-            items = []
-            success, loglines, results = self.TVMAZE.getFollowedShows( params={'embed':'show'} )
-            self.LW.log( loglines )
-            if not success:
-                self.LW.log( ['no valid response returned from TV Maze, aborting'], 'info' )
-                return
-            if self._check_results( results ):
-                for show in results:
-                    try:
-                        items.append( show['_embedded']['show'] )
-                    except KeyError:
-                        continue
-            self.LW.log( ['continuing with updated list of shows of:', items], 'info' )
+            items = self._get_followed()
         elif 'tags' in self.ARGS.tvmazeids:
-            self.LW.log( ['tring to get a list of tagged shows from TV Maze'], 'info' )
             use_tvmaze_public = True
-            items = []
-            try:
-                tags = self.ARGS.tvmazeids.split( ':' )[1].split( ',' )
-            except IndexError:
-                tags = []
-                self.LW.log( ['no tags found in tags call'], 'info' )
-            for tag in tags:
-                success, loglines, results = self.TVMAZE.getTaggedShows( tag )
-                self.LW.log( loglines )
-                if not success:
-                    self.LW.log( ['no valid response returned from TV Maze, skipping %s' % tag], 'info' )
-                    continue
-                if self._check_results( results ):
-                    for show in results:
-                        try:
-                            items.append( show['show_id'] )
-                        except KeyError:
-                            continue
-                        tag_map[show['show_id']] = tag
-            self.LW.log( ['continuing with updated list of show ids of:', items], 'info' )
+            items, tag_map = self._get_tagged()
         else:
             use_tvmaze_public = True
             items = self.ARGS.tvmazeids.split( ',' )
@@ -228,4 +196,48 @@ class Main:
                         self.LW.log( loglines )
                         if not success:
                             self.LW.log( ['no valid response returned from TV Maze, show was not untagged'], 'info' )
+
+
+    def _get_followed( self ):
+        self.LW.log( ['trying to get a list of followed shows from TV Maze'], 'info' )
+        items = []
+        success, loglines, results = self.TVMAZE.getFollowedShows( params={'embed':'show'} )
+        self.LW.log( loglines )
+        if not success:
+            self.LW.log( ['no valid response returned from TV Maze, aborting'], 'info' )
+            return []
+        if self._check_results( results ):
+            for show in results:
+                try:
+                    items.append( show['_embedded']['show'] )
+                except KeyError:
+                    continue
+        self.LW.log( ['continuing with updated list of shows of:', items], 'info' )
+        return items
+
+
+    def _get_tagged( self ):
+        self.LW.log( ['tring to get a list of tagged shows from TV Maze'], 'info' )
+        items = []
+        tag_map = {}
+        try:
+            tags = self.ARGS.tvmazeids.split( ':' )[1].split( ',' )
+        except IndexError:
+            tags = []
+            self.LW.log( ['no tags found in tags call'], 'info' )
+        for tag in tags:
+            success, loglines, results = self.TVMAZE.getTaggedShows( tag )
+            self.LW.log( loglines )
+            if not success:
+                self.LW.log( ['no valid response returned from TV Maze, skipping %s' % tag], 'info' )
+                continue
+            if self._check_results( results ):
+                for show in results:
+                    try:
+                        items.append( show['show_id'] )
+                    except KeyError:
+                        continue
+                    tag_map[show['show_id']] = tag
+        self.LW.log( ['continuing with updated list of show ids of:', items], 'info' )
+        return items, tag_map
 
