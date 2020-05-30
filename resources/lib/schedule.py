@@ -125,7 +125,7 @@ class Main:
                     followed_name = followed_show['_embedded']['show']['name']
                 except KeyError:
                     continue
-                self.LW.log( ['checking for %s matching %s' % (show_info['name'], followed_show['_embedded']['show']['name'])], 'info' )
+                self.LW.log( ['checking for %s matching %s' % (show_info['name'], followed_name)], 'info' )
                 if followed_name == show_info['name']:
                     self.LW.log( ['found match for %s' % show_info['name'] ], 'info' )
                     tvmazeid = followed_show['show_id']
