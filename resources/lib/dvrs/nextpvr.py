@@ -5,7 +5,7 @@ class DVR:
 
     def __init__( self, config ):
         """Creates a NextPVR DVR object."""
-        self.APICALL = nextpvr.API( config.Get( 'dvr_host' ), config.Get( 'dvr_port' ), config.Get( 'dvr_auth' ) )
+        self.APICALL = nextpvr.API( config.Get( 'dvr_host' ), config.Get( 'dvr_port' ), config.Get( 'dvr_auth' ), 'tvmaze.integration' )
 
 
     def scheduleNewRecurringRecording( self, name, params ):
