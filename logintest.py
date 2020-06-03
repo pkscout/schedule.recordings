@@ -34,7 +34,7 @@ def hashMe (thedata):
 
 
 def  sidLogin5():
-    method = 'session.initiate&ver=1.0&device=emby'
+    method = 'session.initiate&ver=1.0&device=testlogin'
     ret, keys = doRequest5(method)
     global sid
     if ret == True:
