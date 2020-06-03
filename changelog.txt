@@ -1,3 +1,8 @@
+v.0.3.7
+- updated nextpvr api so script can use a custom device name during login
+- fix for logger not handling utf-8
+- fix for duplicate recurring recordings being scheduled
+
 v.0.3.6
 - updated API libraries
 - misc code fixes
