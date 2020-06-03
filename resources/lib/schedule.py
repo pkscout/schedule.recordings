@@ -57,7 +57,7 @@ class Main:
             self.LW.log( ['no recurring recordings found, trying to schedule recording'], 'info' )
             return False
         self.LW.log( ['found some recurring recordings, checking to see if one matches %s' % show['name']], 'info' )
-        if show in recurrings:
+        if show['name'] in recurrings:
             self.LW.log( ['found a matching recurring recording, skipping'], 'info' )
             return True
         self.LW.log( ['no matching recurring recording, trying to schedule recording'], 'info' )
@@ -212,7 +212,7 @@ class Main:
                     items.append( show['_embedded']['show'] )
                 except KeyError:
                     continue
-        self.LW.log( ['continuing with updated list of shows of:', items], 'info' )
+        self.LW.log( ['continuing with updated list of shows of:', items] )
         return items
 
 
